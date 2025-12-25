@@ -4,7 +4,8 @@ import { Tokens } from "src/types/tokens.type";
 import { User } from "src/domain/user.entity";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from 'bcrypt';
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
+import { SignInDTO } from "./dto/auth/sign-in.dto";
 
 @Injectable()
 export class AuthService {
@@ -19,6 +20,19 @@ export class AuthService {
         const tokens = await this.getTokens(user.id)
         await this.updateRefreshTokenHash(user.id, tokens.refresh_token);
         return tokens;    
+    }
+
+    async signIn(signInDTO: SignInDTO): Promise<Tokens> {
+        const { email, password} = signInDTO;
+        const user = await this.usersRepository.repo.findOne({where: { email }});
+
+        if(user && (await bcrypt.compare(password, user.password))){
+            const tokens = await this.getTokens(user.id)
+            await this.updateRefreshTokenHash(user.id, tokens.refresh_token);
+            return tokens;
+        } else {
+            throw new UnauthorizedException('Please check your login credentials');
+        }
     }
 
     async getTokens(userId: string): Promise<Tokens>{
