@@ -16,5 +16,6 @@ import { AuthController } from 'src/web/rest/auth.controller';
   ],
   providers: [UsersRepository, AuthService, AtStrategy, RtStrategy ],
   controllers: [AuthController],
+  exports:[AtStrategy, RtStrategy],
 })
 export class AuthModule {}

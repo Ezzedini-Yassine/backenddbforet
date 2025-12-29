@@ -4,8 +4,9 @@ import { Tokens } from "src/types/tokens.type";
 import { User } from "src/domain/user.entity";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from 'bcrypt';
-import { Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { SignInDTO } from "./dto/auth/sign-in.dto";
+import { IsNull, Not } from "typeorm";
 
 @Injectable()
 export class AuthService {
@@ -32,6 +33,20 @@ export class AuthService {
             return tokens;
         } else {
             throw new UnauthorizedException('Please check your login credentials');
+        }
+    }
+
+    async logout(userId: string) {
+        // console.log("in the logout service1: ", userId)
+        const user = await this.usersRepository.repo.findOne({where: {id: userId, refreshToken: Not(IsNull())}});
+        // console.log("in the logout service2: ", userId)
+
+        // console.log('is my user found?: ', user);
+        if(user){
+            user.refreshToken = null;
+            await this.usersRepository.repo.save(user);
+        } else {
+            throw new BadRequestException();
         }
     }
 

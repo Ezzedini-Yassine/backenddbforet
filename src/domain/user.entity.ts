@@ -21,8 +21,12 @@ import {
     imageUrl?: string;
     @Column({ default: 'en'})
     langKey?: string;
-    @Column({ nullable: true})
-    refreshToken: string;
+    // NOTE: When using union types like 'string | null', you MUST explicitly specify 
+    // the column type (e.g., type: 'varchar') because TypeORM's reflection cannot 
+    // infer database types from TypeScript union types at runtime. Without this, 
+    // TypeORM will throw "Data type 'Object' is not supported" error.
+    @Column({ type: 'varchar', nullable: true})
+    refreshToken: string | null;
   
   }
   
