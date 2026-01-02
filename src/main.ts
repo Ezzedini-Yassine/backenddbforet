@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { setupSwagger } from './swagger';
 import { ValidationPipe } from '@nestjs/common';
+import { TransformInterceptor } from './security/interceptors/transform.interceptor';
 
 async function bootstrap() {
   //allowing this in development only (good for testing), when moving to production, make sure to disable CORS or limit it to specific origins
@@ -14,6 +15,7 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
+  app.useGlobalInterceptors(new TransformInterceptor);
   setupSwagger(app);
   await app.listen(process.env.PORT ?? 3000);
   console.log(`Application is running on: ${await app.getUrl()}`);
