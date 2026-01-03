@@ -1,7 +1,9 @@
 import { Body, Controller, HttpCode, HttpStatus, Post, UseGuards, UseInterceptors } from "@nestjs/common";
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { GetCurrentUserId } from "src/security/decorators/get-current-userid.decorator";
+import { GetUser } from "src/security/decorators/get-user.decorator";
 import { AtGuard } from "src/security/guards/at.guard";
+import { RtGuard } from "src/security/guards/rt.guard";
 import { CurrentUserInterceptor } from "src/security/interceptors/current-user.interceptor";
 import { AuthService } from "src/service/auth.service";
 import { SignInDTO } from "src/service/dto/auth/sign-in.dto";
@@ -40,6 +42,15 @@ export class AuthController{
     logout(@GetCurrentUserId() userId: string){
         // console.log('logout_controller'.repeat(1), userId)
         return this.authService.logout(userId);
+    }
+
+    @ApiOperation({ summary: 'Token refresh endpoint, it only requires the refresh token of the connected user' })
+    @ApiResponse({ status: 201, type: TokensClass })
+    @UseGuards(RtGuard)
+    @Post('/refresh')
+    @HttpCode(HttpStatus.OK)
+    refreshTokens(@GetCurrentUserId() userId: string, @GetUser('refreshToken') refreshToken: string ): Promise<Tokens>{
+        return this.authService.refreshTokens(userId, refreshToken);
     }
 
 }

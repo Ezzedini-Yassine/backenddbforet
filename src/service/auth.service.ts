@@ -4,7 +4,7 @@ import { Tokens } from "src/types/tokens.type";
 import { User } from "src/domain/user.entity";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from 'bcrypt';
-import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { SignInDTO } from "./dto/auth/sign-in.dto";
 import { IsNull, Not } from "typeorm";
 
@@ -50,9 +50,22 @@ export class AuthService {
         }
     }
 
+    async refreshTokens(userId: string, refreshToken: string): Promise<Tokens>{
+        const user = await this.usersRepository.repo.findOne({where: {id: userId}});
+        if(!user) throw new ForbiddenException('Access Denied');
+
+        const refreshTokenMatches = await bcrypt.compare(refreshToken, user.refreshToken);
+        if(!refreshTokenMatches) throw new ForbiddenException('Access Denied');
+
+        const tokens = await this.getTokens(user.id)
+        await this.updateRefreshTokenHash(user.id, tokens.refresh_token);
+        return tokens;
+
+    }
+
     async getTokens(userId: string): Promise<Tokens>{
         const [at, rt] = await Promise.all([
-            this.jwtService.sign({userId}, {secret: process.env.JWT_SECRET_AT, expiresIn: 60 * 15}),
+            this.jwtService.sign({userId}, {secret: process.env.JWT_SECRET_AT, expiresIn: 60}),
             this.jwtService.sign({userId}, {secret: process.env.JWT_SECRET_RT, expiresIn: 60 * 60 * 24 * 7})
         ]);
 
