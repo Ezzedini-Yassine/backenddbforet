@@ -65,7 +65,7 @@ export class AuthService {
 
     async getTokens(userId: string): Promise<Tokens>{
         const [at, rt] = await Promise.all([
-            this.jwtService.sign({userId}, {secret: process.env.JWT_SECRET_AT, expiresIn: 60}),
+            this.jwtService.sign({userId}, {secret: process.env.JWT_SECRET_AT, expiresIn: 60 * 15}),
             this.jwtService.sign({userId}, {secret: process.env.JWT_SECRET_RT, expiresIn: 60 * 60 * 24 * 7})
         ]);
 
