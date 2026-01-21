@@ -14,6 +14,7 @@ export class UsersRepository {
         //console.log("createUserAdmin called with:", signUpDTO);
         const { email,username, password}= signUpDTO;
         const user = this.repo.create({ email, username, password, roles: Role.FREEUSER, createdBy: CreatedBy.SYSTEM});
+        console.log("User entity before password transformation:", user);
         await transformPassword(user);
 
         try {
@@ -31,6 +32,15 @@ export class UsersRepository {
                 //handle edge cases in the future in case a developer adds 
                 throw new ConflictException('Duplicate entry detected');
             } else {
+                console.error('[UsersRepository] createUser failed', {
+        message: error.message,
+        code: error.code,
+        detail: error.detail,
+        hint: error.hint,
+        query: error.query,           // ← very useful
+        parameters: error.parameters, // ← very useful
+        stack: error.stack?.substring(0, 800), // prevent flooding logs
+    });
                 throw new InternalServerErrorException();
             }
         }
