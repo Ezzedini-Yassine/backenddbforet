@@ -1,6 +1,9 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { join } from 'path';
 import { User } from '../domain/user.entity';
+import { MapState } from 'src/domain/map-state.entity';
+import { ForestData } from 'src/domain/forest-data.entity';
+import { AdminBoundary } from 'src/domain/admin-boundary.entity';
 
 require('dotenv').config();
 
@@ -40,7 +43,7 @@ class ConfigService {
     username: this.getValue('POSTGRES_USER'),
     password: this.getValue('POSTGRES_PASSWORD'),
     database: this.getValue('POSTGRES_DATABASE'),
-    entities: [User, join(__dirname, '**', '*.entity.{ts,js}')],
+    entities: [User,MapState,ForestData,AdminBoundary, join(__dirname, '**', '*.entity.{ts,js}')],
     migrationsTableName: 'migration',
     synchronize: false,
     migrations: ['src/migration/*.ts'],
