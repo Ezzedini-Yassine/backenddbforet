@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS map_state (
 -- Forest Data table (BD Forêt®)
 CREATE TABLE IF NOT EXISTS forest_data (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  source_id VARCHAR(50),
   code_tfv VARCHAR(50), -- Type forestier
   libelle_fr VARCHAR(255), -- Tree species name in French
   tfv_g11 VARCHAR(50), -- Groupe de formation végétale
