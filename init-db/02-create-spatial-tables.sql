@@ -4,7 +4,10 @@ CREATE TABLE IF NOT EXISTS map_state (
   user_id UUID NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
   center_lat DOUBLE PRECISION NOT NULL,
   center_lng DOUBLE PRECISION NOT NULL,
-  zoom INTEGER NOT NULL,
+  zoom DOUBLE PRECISION NOT NULL, -- ✨ Changed from INTEGER to DOUBLE PRECISION (allows 12.5, 13.2, etc.)
+  bearing DOUBLE PRECISION DEFAULT 0, -- ✨ Added for map rotation
+  pitch DOUBLE PRECISION DEFAULT 0, -- ✨ Added for map tilt (3D)
+  active_layers JSONB, -- ✨ Added to track visible layers
   filters JSONB,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW(),
@@ -36,9 +39,11 @@ CREATE TABLE IF NOT EXISTS admin_boundary (
   population INTEGER,
   geometry GEOMETRY(MultiPolygon, 4326) NOT NULL,
   created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW(), -- ✨ Added for consistency
   UNIQUE(code, level)
 );
 
+-- Cadastre Parcel table (land parcels)
 CREATE TABLE IF NOT EXISTS cadastre_parcel (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   parcel_id VARCHAR(50) NOT NULL UNIQUE, -- Cadastre parcel identifier
